@@ -1,7 +1,6 @@
 {
   "NAME": "ScienceFunding",
-  "URL": "",
-  "DOWNLOAD": "",
+  "URL": "https://raw.githubusercontent.com/Ippo343/ScienceFunding/master/ScienceFunding.version",
   "VERSION":{
 	"MAJOR":1,
     "MINOR":0,
