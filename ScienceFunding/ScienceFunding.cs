@@ -1,11 +1,5 @@
-﻿using KSP.IO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using UnityEngine;
-using System.Reflection;
-using System.IO;
 
 namespace ScienceFunding
 {
@@ -26,7 +20,7 @@ namespace ScienceFunding
         /// Science transmission handler: computes the funds and reputation boni
         /// and awards them to the player.
         /// </summary>
-        public void ScienceReceivedHandler(float science, ScienceSubject sub)
+        public void ScienceReceivedHandler(float science, ScienceSubject sub, ProtoVessel v)
         {
             string msg = "Received " + science + " science points";
             ScienceFunding.Log(msg);
