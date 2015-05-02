@@ -20,7 +20,7 @@ namespace ScienceFunding
         /// Science transmission handler: computes the funds and reputation boni
         /// and awards them to the player.
         /// </summary>
-        public void ScienceReceivedHandler(float science, ScienceSubject sub, ProtoVessel v)
+        public void ScienceReceivedHandler(float science, ScienceSubject sub, ProtoVessel v, bool whoKnows)
         {
             string msg = "Received " + science + " science points";
             ScienceFunding.Log(msg);
