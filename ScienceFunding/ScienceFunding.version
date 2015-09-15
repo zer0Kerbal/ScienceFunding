@@ -1,0 +1,20 @@
+﻿{
+  "NAME"     : "Science Funding",
+  "DOWNLOAD" : "https://kerbalstuff.com/mod/405"
+  "URL"      : "https://raw.githubusercontent.com/Ippo343/ScienceFunding/master/ScienceFunding/ScienceFunding.version",
+  "GITHUB" : {
+    "USERNAME"   : "Ippo343",
+    "REPOSITORY" : "ScienceFunding"
+  },
+  "VERSION" : {
+    "MAJOR" : 1,
+    "MINOR" : 2,
+    "PATCH" : 0,
+    "BUILD" : 0
+  },
+  "KSP_VERSION_MIN" : {
+    "MAJOR" : 1,
+    "MINOR" : 0,
+    "PATCH" : 4
+  }
+}

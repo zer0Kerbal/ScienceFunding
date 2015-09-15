@@ -45,16 +45,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ScenarioInjector.cs" />
     <Compile Include="ScienceFunding.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ScienceFunding.version" />
     <None Include="settings.cfg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "C:\Users\mippo_000\Documents\ksp\GameData\ScienceFunding"
-copy "$(ProjectDir)settings.cfg"  "C:\Users\mippo_000\Documents\ksp\GameData\ScienceFunding"</PostBuildEvent>
+copy "$(ProjectDir)settings.cfg"  "C:\Users\mippo_000\Documents\ksp\GameData\ScienceFunding"
+copy "$(ProjectDir)ScienceFunding.version"  "C:\Users\mippo_000\Documents\ksp\GameData\ScienceFunding"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
