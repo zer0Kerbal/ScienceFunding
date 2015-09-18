@@ -78,13 +78,13 @@ namespace ScienceFunding
 
         // Generate a notification every queueLength messages
         public int queueLength = 5;
-        public Queue<ScienceReport> queue;
+        public Queue<ScienceReport> queue = new Queue<ScienceReport>();
 
         /// <summary>
         /// "Constructor": it's not really the constructor, but Unity calls it
         /// immediately after the constructor, so...
         /// </summary>
-        public void Awake()
+        public override void OnAwake()
         {
             // Start listening on the event to award the rewards
             GameEvents.OnScienceRecieved.Add(ScienceReceivedHandler);
@@ -96,6 +96,8 @@ namespace ScienceFunding
         /// </summary>
         public override void OnLoad(ConfigNode node)
         {
+            ScienceFunding.Log("Loading configuration");
+
             LoadConfiguration();
 
             this.queue = new Queue<ScienceReport>(this.queueLength);
@@ -155,6 +157,7 @@ namespace ScienceFunding
 
             // Add the new report to the queue, and also send the notification if the queue has reached its limit.
             this.queue.Enqueue(new ScienceReport(funds, rep, sub.title));
+
             if (this.queue.Count > this.queueLength)
                 SendReport();
         }
@@ -177,12 +180,11 @@ namespace ScienceFunding
             builder.AppendLine("");
 
             // Append a string for every report in the queue
-            ScienceReport cursor;
-            while (this.queue.Count > 0)
-            {
-                cursor = this.queue.Dequeue();
-                builder.AppendLine(cursor.ToString());
-            }
+            foreach (ScienceReport item in this.queue.ToList())
+                builder.AppendLine(item.ToString());
+
+            // Delete everything
+            this.queue = new Queue<ScienceReport>();          
 
             PostMessage(
                 "New funds available!",
@@ -202,26 +204,41 @@ namespace ScienceFunding
         /// <param name="node"></param>
         public override void OnSave(ConfigNode node)
         {
-            ScienceFunding.Log("Saving message queue");
-
-            // Ensure a fresh save each time
-            if (node.HasNode("QUEUE"))
-                node.RemoveNode("QUEUE");
-            ConfigNode queueNode = new ConfigNode("QUEUE");
-            node.AddNode(queueNode);
-
-            foreach (ScienceReport report in this.queue)
+            try
             {
-                queueNode.AddNode(report.ToConfigNode());
-            }
+                ScienceFunding.Log("Saving message queue");
 
-            ScienceFunding.Log("Saved " + this.queue.Count.ToString() + " records");
+                // Ensure a fresh save each time
+                if (node.HasNode("QUEUE"))
+                    node.RemoveNode("QUEUE");
+                ConfigNode queueNode = new ConfigNode("QUEUE");
+                node.AddNode(queueNode);
+
+                foreach (ScienceReport report in this.queue)
+                {
+                    queueNode.AddNode(report.ToConfigNode());
+                }
+
+                ScienceFunding.Log("Saved " + this.queue.Count.ToString() + " records");
+            }
+            catch (Exception e)
+            {
+                ScienceFunding.Log("Something went orribly wrong while saving: " + e.ToString());
+                node.SetNode("QUEUE", new ConfigNode("QUEUE"));
+            }
         }
 
         public void OnDestroy()
         {
-            GameEvents.OnScienceRecieved.Remove(ScienceReceivedHandler);
-            ScienceFunding.Log("OnDestroy, removing handler.");
+            try
+            {                
+                GameEvents.OnScienceRecieved.Remove(ScienceReceivedHandler);
+                ScienceFunding.Log("OnDestroy, removing handler.");
+            }
+            catch (Exception)
+            {
+                // do nothing
+            }
         }
 
         #region Utilities
@@ -231,9 +248,9 @@ namespace ScienceFunding
         /// </summary>
         public void LoadConfiguration()
         {
-            ConfigNode node = GetConfig();
             try
             {
+                ConfigNode node = GetConfig();
                 this.fundsMult = float.Parse(node.GetValue("funds"));
                 this.repMult = float.Parse(node.GetValue("rep"));
                 this.queueLength = int.Parse(node.GetValue("queueLength"));
