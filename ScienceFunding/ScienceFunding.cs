@@ -1,13 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
-using System.Xml.Serialization;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace ScienceFunding
 {
+    /// <summary>
+    /// Very very basic one shot timer which isn't even multi-threaded.
+    /// This is used to make sure we empty the queue properly and not in the middle
+    /// of a stream of science reports.
+    /// </summary>
+    public class OneShotTimer
+    {
+        public delegate void TimerEvent();
+        float? start_time = null;
+        public TimerEvent OnTimer;
+        public float Interval = 1f;
+
+        public void Start()
+        {
+            this.start_time = UnityEngine.Time.time;
+        }
+
+        /// <summary>
+        /// Updates the timer. If the time has elapsed,
+        /// calls the callback and stops the timer.
+        /// </summary>
+        public void Update()
+        {
+            if (this.start_time != null && (Time.time - start_time) > this.Interval)
+            {
+                this.start_time = null;
+                this.OnTimer();
+            }
+        }
+    }
+
     /// <summary>
     /// Used to store the essential data regarding a science report when it's received.
     /// </summary>
@@ -31,9 +61,9 @@ namespace ScienceFunding
         /// <returns></returns>
         public override string ToString()
         {
-            return this.subject + ": " +
-                   this.funds.ToString("F1") + " funds, " +
-                   this.rep.ToString("F1") + " rep.";
+            return " * "   + this.subject + ":\n" +
+                   "     " + this.funds.ToString("F1") + " funds, " +
+                             this.rep.ToString("F1") + " rep.";
         }
 
         /// <summary>
@@ -80,12 +110,23 @@ namespace ScienceFunding
         public int queueLength = 5;
         public Queue<ScienceReport> queue = new Queue<ScienceReport>();
 
+        // When you recover a vessel, you might have a lot of science experiments on it.
+        // Let's say you have 8 reports and a queue with length 5; the game sends each report sequentially
+        // when you recover the craft. When the queue reaches 5 elements, you get a report for the first 5 experiments;
+        // the other 3 are added to the queue but since 3 < 5 you don't get them in your report until you do 2 more experiments.
+        // The solution is to start this timer every time a new report is received, and you only send the report
+        // when the timer expires. This allows the queue to be emptied properly when a vessel is recovered.
+        OneShotTimer timer = new OneShotTimer();
+
         /// <summary>
         /// "Constructor": it's not really the constructor, but Unity calls it
         /// immediately after the constructor, so...
         /// </summary>
         public override void OnAwake()
         {
+            // Timer callback to send the report
+            this.timer.OnTimer = this.OnTimer;
+
             // Start listening on the event to award the rewards
             GameEvents.OnScienceRecieved.Add(ScienceReceivedHandler);
             ScienceFunding.Log("listening for science...");
@@ -126,6 +167,17 @@ namespace ScienceFunding
             ScienceFunding.Log("Loaded " + this.queue.Count.ToString() + " records");
         }
 
+        public void Update()
+        {
+            this.timer.Update();
+        }
+
+        public void OnTimer()
+        {
+            if (this.queue.Count > this.queueLength)
+                SendReport();
+        }
+
         /// <summary>
         /// Science transmission handler: computes the funds and reputation boni
         /// and awards them to the player.
@@ -157,9 +209,7 @@ namespace ScienceFunding
 
             // Add the new report to the queue, and also send the notification if the queue has reached its limit.
             this.queue.Enqueue(new ScienceReport(funds, rep, sub.title));
-
-            if (this.queue.Count > this.queueLength)
-                SendReport();
+            this.timer.Start();
         }
 
         /// <summary>
@@ -179,9 +229,22 @@ namespace ScienceFunding
             builder.AppendLine("Your recent research efforts have granted you the following rewards:");
             builder.AppendLine("");
 
+            // Running total
+            float totalFunds = 0;
+            float totalRep = 0;
+
             // Append a string for every report in the queue
             foreach (ScienceReport item in this.queue.ToList())
+            {
+                totalFunds += item.funds;
+                totalRep += item.rep;
+
                 builder.AppendLine(item.ToString());
+            }
+
+            // Footer with totals
+            builder.AppendLine("");
+            builder.AppendLine("Total: " + totalFunds + " funds, " + totalRep + " reputation.");
 
             // Delete everything
             this.queue = new Queue<ScienceReport>();          
