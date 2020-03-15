@@ -287,7 +287,7 @@ namespace ScienceFunding
             }
             catch (Exception e)
             {
-                ScienceFunding.Log("Something went orribly wrong while saving: " + e.ToString());
+                ScienceFunding.Log("Something went horribly wrong while saving: " + e.ToString());
                 node.SetNode("QUEUE", new ConfigNode("QUEUE"));
             }
         }
@@ -349,7 +349,7 @@ namespace ScienceFunding
         static ConfigNode GetConfig()
         {
             string assemblyPath = Path.GetDirectoryName(typeof(ScienceFunding).Assembly.Location);
-            string filePath = Path.Combine(assemblyPath, "settings.cfg");
+            string filePath = Path.Combine(assemblyPath, "PluginData/settings.cfg");
 
             ScienceFunding.Log("Loading settings file:" + filePath);
 

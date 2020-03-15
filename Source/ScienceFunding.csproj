@@ -37,11 +37,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="$(DevDir173\)KSP_x64_Data\Managed\Assembly-CSharp.dll" >
+    <Reference Include="C:\Games\Dev173\KSP_x64_Data\Managed\Assembly-CSharp.dll">
+      <Private>False</Private>
     </Reference>
-    <Reference Include="$(DevDir173\)KSP_x64_Data\Managed\KSPUtil.dll" >
+    <Reference Include="$(DevDir173)\KSP_x64_Data\Managed\*.dll">
+      <Private>False</Private>
+      <!-- <Reference Include="$(DevDir173)\KSP_x64_Data\Managed\KSPUtil.dll"> -->
+      <!-- <Private>False</Private> -->
     </Reference>
-    <Reference Include="$(DevDir173\)KSP_x64_Data\Managed\UnityEngine.dll" >
+    <Reference Include="C:\Games\Dev173\KSP_x64_Data\Managed\UnityEngine.dll">
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,6 +56,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InstallChecker.cs" />
+    <Compile Include="Properties\AssemblyVersion.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AssemblyVersion.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Version.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Version.tt</DependentUpon>
+    </Compile>
     <Compile Include="ScenarioInjector.cs" />
     <Compile Include="ScienceFunding.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,6 +74,19 @@
   <ItemGroup>
     <None Include="ScienceFunding.version" />
     <None Include="settings.cfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Properties\AssemblyVersion.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AssemblyVersion.cs</LastGenOutput>
+    </Content>
+    <Content Include="Properties\Version.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Version.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -77,7 +106,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
- <PropertyGroup>
+  <PropertyGroup>
     <PostBuildEvent>start /D $(ProjectDir)..\  /WAIT _deploy.bat  $(TargetDir) $(TargetFileName)
 if $(ConfigurationName) == Release start /D $(ProjectDir)..\   /WAIT _buildRelease.bat $(TargetDir) $(TargetFileName)</PostBuildEvent>
   </PropertyGroup>
